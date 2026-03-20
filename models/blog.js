@@ -1,0 +1,27 @@
+ 
+const mongoose = require("mongoose");
+ 
+
+const blogsSchema = new mongoose.Schema(
+    {
+        title: { type: String, required: true },
+        excerpt: { type: String, required: true },
+        content: { type: String, required: true },
+        image: { url: String, public_id: String },
+        author: { type: String, required: true },
+        videoId: { type: String, required: true },
+        comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+        likes: [{ type: String }],
+        views: [{ type: String }],
+        shares: [{ type: String }],
+        status: { type: String, enum: ["draft", "published"], default: "draft" },
+        publishedOn: { type: Date },
+        
+        
+         
+    },
+  { timestamps: true }
+);
+const Blogs = mongoose.model("Blog", blogsSchema);
+
+module.exports = Blogs;
