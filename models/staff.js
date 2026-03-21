@@ -7,7 +7,12 @@ const staffSchema = new mongoose.Schema(
         phone: { type: String, required: true },
         role: { type: String, required: true },
         photo: { url: String, public_id: String },
-        gender: { type: String, enum: ["Male", "Female"] },
+        
+        type: { type: String, enum: ["staff", "volunteer"] },
+    socialLinks: [{ platform: String, url: String }],
+    status: { type: String, enum: ["active", "inactive"], default: "active" },
+    position: { type: String },
+        
         
     },
   { timestamps: true }

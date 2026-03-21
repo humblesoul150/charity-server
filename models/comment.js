@@ -5,11 +5,10 @@ const commentsSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["talent", "visit", "blog", "Article"],
+      enum: [  "blog"],
     },
     typeId: { type: String, required: true },
     name: { type: String, required: true },
-    phone: { type: String  },
     comment: { type: String, required: true, trim: true },
     userId: { type: String, required: true, trim: true },
     likes: [{ type: String }],

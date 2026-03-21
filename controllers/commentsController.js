@@ -1,5 +1,5 @@
 const Comments = require("../models/comment");
-const Visits = require("../models/visit");
+const Visits = require("../models/event");
 const Blogs = require("../models/blog");
 const { validationResult } = require("express-validator");
 // const notifUtil = require('../utils/notificationUtil');

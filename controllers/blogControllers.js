@@ -3,64 +3,7 @@ const DeleteImage = require("../utils/deleteCloudImg");
 const { validationResult } = require("express-validator");
 // const notifUtil = require('../utils/notificationUtil');
 
-const cloudinary = require("cloudinary").v2;
-const multer = require("multer");
-const fs = require("fs");
-
-// Constants
-const UPLOAD_PRESET = process.env.CLOUDINARY_SIGNED_PRESET || "your_signed_preset";
-const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || "default_folder";
-const UPLOAD_DEST = "uploads/";
-
-const upload = multer({ dest: UPLOAD_DEST });
-/**
- * Upload image to Cloudinary
- */
-exports.uploadImage = [
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded." });
-      }
-
-      const timestamp = Math.floor(Date.now() / 1000);
-      const signature = cloudinary.utils.api_sign_request(
-        { timestamp, upload_preset: UPLOAD_PRESET, folder: CLOUDINARY_FOLDER },
-        process.env.CLOUDINARY_API_SECRET
-      );
-
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        api_key: process.env.CLOUDINARY_API_KEY,
-        timestamp,
-        upload_preset: UPLOAD_PRESET,
-        folder: CLOUDINARY_FOLDER,
-        signature,
-      });
-
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-
-    //   logger.info(`Image uploaded successfully: ${result.public_id}`);
-      res.status(200).json({
-        url: result.secure_url,
-        public_id: result.public_id,
-      });
-    } catch (error) {
-      // Clean up uploaded file on error
-      if (req.file && req.file.path) {
-        try {
-          fs.unlinkSync(req.file.path);
-        } catch (cleanupError) {
-        //   logger.error('Failed to cleanup uploaded file:', cleanupError);
-        }
-      }
-
-    //   logger.error('Image upload error:', error);
-      res.status(500).json({ message: "Image upload failed", error: error.message });
-    }
-  }
-];
+ 
 
 exports.createBlog = async (req, res) => {
     try {
