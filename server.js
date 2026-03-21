@@ -71,11 +71,13 @@ const messageRoutes = require("./routes/messageRoutes");
 const authRoutes = require("./routes/authRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const campaignRoutes = require("./routes/campaignRoutes");
 
 app.use("/api/blogs", blogRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/campaigns", campaignRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/notifications", notificationRoutes);
