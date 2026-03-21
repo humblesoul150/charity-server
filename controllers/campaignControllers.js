@@ -42,4 +42,24 @@ exports.getAllCampaigns = async (req, res) => {
         console.log(error);
         console.log('====================================');
     }
- }
+}
+ 
+exports.deleteCampaign = async (req, res) => { 
+    try {
+        const { id } = req.params;
+        const campaign = await Campaigns.findById(id);
+        if (!campaign) {
+            return res.status(404).json({ message: "Campaign not found" });
+        }
+        if (campaign.image && campaign.image.public_id) {
+            await DeleteImageFromCloudinary(campaign.image.public_id);
+        }
+        await Campaigns.findByIdAndDelete(id);
+        res.status(200).json({ message: "Campaign deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+    }
+}

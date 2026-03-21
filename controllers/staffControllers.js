@@ -3,64 +3,7 @@ const DeleteImage = require("../utils/deleteCloudImg");
 const { validationResult } = require("express-validator");
 // const notifUtil = require('../utils/notificationUtil');
 
-const cloudinary = require("cloudinary").v2;
-const multer = require("multer");
-const fs = require("fs");
-
-// Constants
-const UPLOAD_PRESET = process.env.CLOUDINARY_SIGNED_PRESET || "your_signed_preset";
-const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || "default_folder";
-const UPLOAD_DEST = "uploads/";
-
-const upload = multer({ dest: UPLOAD_DEST });
-/**
- * Upload image to Cloudinary
- */
-exports.uploadImage = [
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded." });
-      }
-
-      const timestamp = Math.floor(Date.now() / 1000);
-      const signature = cloudinary.utils.api_sign_request(
-        { timestamp, upload_preset: UPLOAD_PRESET, folder: CLOUDINARY_FOLDER },
-        process.env.CLOUDINARY_API_SECRET
-      );
-
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        api_key: process.env.CLOUDINARY_API_KEY,
-        timestamp,
-        upload_preset: UPLOAD_PRESET,
-        folder: CLOUDINARY_FOLDER,
-        signature,
-      });
-
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-
-    //   logger.info(`Staff image uploaded successfully: ${result.public_id}`);
-      res.status(200).json({
-        url: result.secure_url,
-        public_id: result.public_id,
-      });
-    } catch (error) {
-      // Clean up uploaded file on error
-      if (req.file && req.file.path) {
-        try {
-          fs.unlinkSync(req.file.path);
-        } catch (cleanupError) {
-        //   logger.error('Failed to cleanup uploaded file:', cleanupError);
-        }
-      }
-
-    //   logger.error('Staff image upload error:', error);
-      res.status(500).json({ message: "Image upload failed", error: error.message });
-    }
-  }
-];
+ 
 
 exports.createStaff = async (req, res) => {
     try {
@@ -120,10 +63,10 @@ exports.getStaff = async (req, res) => {
 
 exports.deleteStaff = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
+        // }
 
         const { id } = req.params;
         const staff = await Staff.findById(id);
@@ -134,13 +77,7 @@ exports.deleteStaff = async (req, res) => {
 
         // Delete associated photo if exists
         if (staff.photo && staff.photo.public_id) {
-            try {
-                await DeleteImage(staff.photo.public_id);
-                // logger.info(`Deleted staff photo: ${staff.photo.public_id}`);
-            } catch (imageError) {
-                // logger.error('Failed to delete staff photo:', imageError);
-                // Don't fail the whole operation
-            }
+             await DeleteImage(staff.photo.public_id);
         }
 
         await Staff.findByIdAndDelete(id);
@@ -168,6 +105,14 @@ exports.updateStaff = async (req, res) => {
 
         const { id } = req.params;
         const updateData = req.body;
+
+        const findStaff = await Staff.findById(id);
+        if (!findStaff) {
+            return res.status(404).json({ message: "Staff member not found" });
+        }
+        if (updateData.photo.public_id && findStaff.photo.public_id && findStaff.photo.public_id !== updateData.photo.public_id) {
+            await DeleteImage(findStaff.photo.public_id);
+        }
 
         const staff = await Staff.findByIdAndUpdate(id, updateData, {
             new: true,

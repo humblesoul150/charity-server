@@ -107,14 +107,8 @@ exports.deleteBlog = async (req, res) => {
         }
 
         // Delete associated image from Cloudinary
-        if (blog.thumbnail && blog.thumbnail.public_id) {
-            try {
-                await DeleteImage(blog.thumbnail.public_id);
-                // logger.info(`Deleted image from Cloudinary: ${blog.thumbnail.public_id}`);
-            } catch (imageError) {
-                // logger.error('Failed to delete image from Cloudinary:', imageError);
-                // Don't fail the whole operation for image deletion error
-            }
+        if (blog.image && blog.image.public_id) {
+             await DeleteImage(blog.image.public_id);
         }
 
         await Blogs.findByIdAndDelete(id);
@@ -142,7 +136,13 @@ exports.updateBlog = async (req, res) => {
 
         const { id } = req.params;
         const updateData = req.body;
-
+const findPost = await Blogs.findById(id);
+        if (!findPost) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
+        if (updateData.image.public_id && findPost.image.public_id && findPost.image.public_id !== updateData.image.public_id) {
+            await DeleteImage(findPost.image.public_id);
+        }
         const blog = await Blogs.findByIdAndUpdate(id, updateData, {
             new: true,
             runValidators: true
@@ -151,6 +151,8 @@ exports.updateBlog = async (req, res) => {
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
         }
+
+        
 
         // Send notification asynchronously
         // notifUtil.notifyResourceUpdated('blog', blog, `/api/blogs/${blog._id}`).catch(err =>

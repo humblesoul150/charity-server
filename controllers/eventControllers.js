@@ -119,27 +119,11 @@ exports.deleteEvent = async (req, res) => {
         }
 
         // Delete associated images
-        if (event.thumbnail && event.thumbnail.public_id) {
-            try {
-                await DeleteImage(event.thumbnail.public_id);
-                // logger.info(`Deleted event thumbnail: ${event.thumbnail.public_id}`);
-            } catch (imageError) {
-                // logger.error('Failed to delete event thumbnail:', imageError);
-            }
+        if (event.image && event.image.public_id) {
+             await DeleteImage(event.image.public_id);
         }
 
-        if (event.gallery && event.gallery.length > 0) {
-            for (const img of event.gallery) {
-                if (img.public_id) {
-                    try {
-                        await DeleteImage(img.public_id);
-                        // logger.info(`Deleted gallery image: ${img.public_id}`);
-                    } catch (imageError) {
-                        // logger.error('Failed to delete gallery image:', imageError);
-                    }
-                }
-            }
-        }
+         
 
         await Events.findByIdAndDelete(id);
 
