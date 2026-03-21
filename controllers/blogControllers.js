@@ -7,20 +7,21 @@ const { validationResult } = require("express-validator");
 
 exports.createBlog = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+            // const errors = validationResult(req);
+            // if (!errors.isEmpty()) {
+            //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
+        // }
+        
+       
 
-        const { title, content, excerpt, thumbnail, author, videoId } = req.body;
+        const { title, content, excerpt, status, image,imageUrl, author, videoId,category } = req.body;
 
         const newBlog = new Blogs({
-            title,
-            content,
-            excerpt,
-            thumbnail: thumbnail || { url: "", public_id: "" },
-            author,
+            title, content, excerpt, status,
+            image: image || (imageUrl ? { url: imageUrl, public_id: '' } : { url: '', public_id: '' })
+            , author,
             videoId,
+            category,
             comments: [],
             likes: [],
             views: [],

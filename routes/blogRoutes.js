@@ -7,7 +7,7 @@ const {
   getBlogs,
   deleteBlog,
   updateBlog,
-  uploadImage,
+   
   publishBlog,
   likeToggle,
   saveViews,
@@ -15,7 +15,7 @@ const {
 } = require("../controllers/blogControllers");
 
 
-router.post("/create",
+router.post("/new",
   
   createBlog
 );

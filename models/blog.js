@@ -9,12 +9,13 @@ const blogsSchema = new mongoose.Schema(
         content: { type: String, required: true },
         image: { url: String, public_id: String },
         author: { type: String, required: true },
-        videoId: { type: String, required: true },
+    category: { type: String, required: true },
+    status: { type: String, enum: ["draft", "published"], default: "draft" },
+    videoId: { type: String },
         comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
         likes: [{ type: String }],
         views: [{ type: String }],
         shares: [{ type: String }],
-        status: { type: String, enum: ["draft", "published"], default: "draft" },
         publishedOn: { type: Date },
         
         
