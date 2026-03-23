@@ -30,7 +30,7 @@ router.delete("/delete/:id",
 
  
 
-router.put("/update/:id",
+router.put("/:id/update",
    
   updateEvent
 );

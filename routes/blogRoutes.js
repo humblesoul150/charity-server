@@ -32,7 +32,7 @@ router.delete("/delete/:id",
   deleteBlog
 );
 
-router.put("/update/:id",
+router.put("/:id/update",
   
   updateBlog
 );

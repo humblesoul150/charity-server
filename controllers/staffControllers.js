@@ -7,12 +7,9 @@ const { validationResult } = require("express-validator");
 
 exports.createStaff = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+        
 
-        const { name, email, phone, role, gender, image } = req.body;
+        const { name, email, phone, role, gender, photo,position,type } = req.body;
 
         const newStaff = new Staff({
             name,
@@ -20,17 +17,13 @@ exports.createStaff = async (req, res) => {
             phone,
             role,
             gender,
-            photo: image || { url: "", public_id: "" },
+            photo: photo || { url: "", public_id: "" },
+           type
         });
 
         await newStaff.save();
 
-        // Send notification asynchronously
-        // notifUtil.notifyResourceCreated('staff member', newStaff, `/about`).catch(err =>
-            // logger.error('Failed to send staff creation notification:', err)
-        // );
-
-        // logger.info(`Staff member created: ${newStaff._id} - ${name}`);
+        
         res.status(201).json({
             message: "Staff member created successfully",
             staff: { id: newStaff._id, name: newStaff.name }
@@ -63,10 +56,7 @@ exports.getStaff = async (req, res) => {
 
 exports.deleteStaff = async (req, res) => {
     try {
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        // }
+        
 
         const { id } = req.params;
         const staff = await Staff.findById(id);
@@ -81,12 +71,7 @@ exports.deleteStaff = async (req, res) => {
         }
 
         await Staff.findByIdAndDelete(id);
-
-        // Send notification asynchronously
-        // notifUtil.notifyResourceDeleted('staff member', id).catch(err =>
-            // logger.error('Failed to send staff deletion notification:', err)
-        // );
-
+ 
         // logger.info(`Staff member deleted: ${id} - ${staff.name}`);
         res.status(200).json({ message: "Staff member deleted successfully" });
 
@@ -98,10 +83,7 @@ exports.deleteStaff = async (req, res) => {
 
 exports.updateStaff = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+         
 
         const { id } = req.params;
         const updateData = req.body;
@@ -123,12 +105,7 @@ exports.updateStaff = async (req, res) => {
             return res.status(404).json({ message: "Staff member not found" });
         }
 
-        // Send notification asynchronously
-        // notifUtil.notifyResourceUpdated('staff member', staff, `/admin/staff`).catch(err =>
-            // logger.error('Failed to send staff update notification:', err)
-        // );
-
-        // logger.info(`Staff member updated: ${id} - ${staff.name}`);
+         
         res.status(200).json({
             message: "Staff member updated successfully",
             staff

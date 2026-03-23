@@ -8,7 +8,7 @@ const campaignSchema = new mongoose.Schema(
         category: { type: String, required: true },
         image: { url: String, public_id: String },
         goal: { type: String },
-        raised: [{ type: mongoose.Schema.Types.ObjectId, ref: "Donation" }],
+        raised: [{type:Number}],
         endDate : { type: String },
         status: { type: String, enum: ["ongoing","upcoming", "completed"], default: "upcoming" },
          

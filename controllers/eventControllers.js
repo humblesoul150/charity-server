@@ -6,12 +6,7 @@ const { validationResult } = require("express-validator");
  
 exports.createEvent = async (req, res) => {
     try {
-
-        
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        // }
+ 
 
         const {
         title ,
@@ -40,13 +35,7 @@ exports.createEvent = async (req, res) => {
         });
 
         await newEvent.save();
-
-        // Send notification asynchronously
-        // notifUtil.notifyResourceCreated('event', newEvent, `/api/events/${newEvent._id}`).catch(err =>
-            // logger.error('Failed to send event creation notification:', err)
-        // );
-
-        // logger.info(`Event created: ${newEvent._id} - ${title}`);
+ 
         res.status(201).json({
             message: "Event created successfully",
              
@@ -143,13 +132,17 @@ exports.deleteEvent = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+       
 
         const { id } = req.params;
         const updateData = req.body;
+        const findEvent = await Events.findById(id);
+        if (!findEvent) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+        if (updateData.image.public_id && findEvent.image.public_id && findEvent.image.public_id !== updateData.image.public_id) {
+            await DeleteImage(findEvent.image.public_id);
+        }
 
         const event = await Events.findByIdAndUpdate(id, updateData, {
             new: true,
@@ -160,12 +153,7 @@ exports.updateEvent = async (req, res) => {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        // Send notification asynchronously
-        // notifUtil.notifyResourceUpdated('event', event, `/api/events/${event._id}`).catch(err =>
-        //     // logger.error('Failed to send event     update notification:', err)
-        // );
-
-        // logger.info(`Event updated: ${id} - ${event.title}`);
+      
         res.status(200).json({
             message: "Event updated successfully",
             event
