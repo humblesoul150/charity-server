@@ -69,13 +69,10 @@ exports.getBlogs = async (req, res) => {
 
 exports.getBlogById = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+         
 
         const { id } = req.params;
-        const blog = await Blogs.findById(id)
+        const blog = await Blogs.findById(id).populate('comments')
             .populate("comments")
             .select('-__v');
 
@@ -129,10 +126,10 @@ exports.deleteBlog = async (req, res) => {
 
 exports.updateBlog = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
+        // }
 
         const { id } = req.params;
         const updateData = req.body;
@@ -212,10 +209,7 @@ exports.publishBlog = async (req, res) => {
 
 exports.likeToggle = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+       
 
         const { blogId } = req.params;
         const { uuid } = req.body;

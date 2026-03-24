@@ -7,7 +7,6 @@ const {
   getBlogs,
   deleteBlog,
   updateBlog,
-   
   publishBlog,
   likeToggle,
   saveViews,
@@ -43,7 +42,6 @@ router.put("/publish/blog/:id",
 );
 
 router.post("/:blogId/toggle-like",
-   
   likeToggle
 );
 

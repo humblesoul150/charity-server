@@ -6,11 +6,7 @@ const { validationResult } = require("express-validator");
 
 exports.createComment = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
-
+         
         const { type, typeId, name, phone, comment, uuid } = req.body;
 
         const newComment = new Comments({
@@ -53,7 +49,7 @@ exports.createComment = async (req, res) => {
             // logger.error('Failed to send comment notification:', err)
         // );
 
-        logger.info(`New comment created: ${newComment._id} on ${type} ${typeId}`);
+         
         res.status(201).json({
             message: "Comment created successfully",
             comment: {
@@ -64,8 +60,11 @@ exports.createComment = async (req, res) => {
         });
 
     } catch (error) {
-        logger.error('Comment creation error:', error);
+         
         res.status(500).json({ message: "Server error", error: error.message });
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
     }
 }
 
