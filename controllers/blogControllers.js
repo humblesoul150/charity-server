@@ -243,10 +243,7 @@ exports.likeToggle = async (req, res) => {
 }
 exports.shareToggle = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        }
+      
 
         const { blogId } = req.params;
         const { uuid } = req.body;

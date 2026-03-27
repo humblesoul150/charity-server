@@ -51,3 +51,4 @@ exports.deleteGalleryItem = async (req, res) => {
         console.log('====================================');
     }
 }
+

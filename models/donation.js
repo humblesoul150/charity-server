@@ -1,19 +1,15 @@
 const mongoose = require("mongoose");
 
 const donationsSchema = new mongoose.Schema(
-  {
-    type: {
-      type: String,
-      required: true,
-      enum: [  "blog"],
+    {
+        type: { type: String, required: true, enum: ["campaign", "event", "general"] },
+        typeId: { type: String, required: true },
+        amount: { type: Number, required: true },
+        donorName: { type: String, required: true },
+        donorEmail: { type: String, required: true },
+        companyName: { type: String, required: true },
+        date: { type: Date, default: Date.now },
     },
-    typeId: { type: String, required: true },
-    name: { type: String, required: true },
-    comment: { type: String, required: true, trim: true },
-    userId: { type: String, required: true, trim: true },
-    likes: [{ type: String }],
-  },
-
   { timestamps: true },
 );
 const Donations = mongoose.model("Donation", donationsSchema);
