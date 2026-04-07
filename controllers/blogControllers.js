@@ -18,7 +18,7 @@ exports.createBlog = async (req, res) => {
 
         const newBlog = new Blogs({
             title, content, excerpt, status,
-            image: image || (imageUrl ? { url: imageUrl, public_id: '' } : { url: '', public_id: '' })
+            image:  imageUrl ? { url: imageUrl, public_id: '' } : image || { url: '', public_id: '' }
             , author,
             videoId,
             category,
@@ -126,13 +126,12 @@ exports.deleteBlog = async (req, res) => {
 
 exports.updateBlog = async (req, res) => {
     try {
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(400).json({ message: "Validation errors", errors: errors.array() });
-        // }
+        
 
         const { id } = req.params;
         const updateData = req.body;
+
+        const newupdateData = { ...updateData,image: updateData.imageUrl ? { url: updateData.imageUrl, public_id: '' } : updateData.image || {url: '', public_id: ''} };
 const findPost = await Blogs.findById(id);
         if (!findPost) {
             return res.status(404).json({ message: "Blog not found" });
@@ -140,7 +139,7 @@ const findPost = await Blogs.findById(id);
         if (updateData.image.public_id && findPost.image.public_id && findPost.image.public_id !== updateData.image.public_id) {
             await DeleteImage(findPost.image.public_id);
         }
-        const blog = await Blogs.findByIdAndUpdate(id, updateData, {
+        const blog = await Blogs.findByIdAndUpdate(id, newupdateData, {
             new: true,
             runValidators: true
         }).populate("comments");
@@ -175,8 +174,8 @@ exports.publishBlog = async (req, res) => {
             return res.status(400).json({ message: "Validation errors", errors: errors.array() });
         }
 
-        const { id } = req.params;
-        const blog = await Blogs.findById(id);
+         
+        const blog = await Blogs.findById(req.params.id);
 
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
@@ -190,12 +189,7 @@ exports.publishBlog = async (req, res) => {
 
         await blog.save();
 
-        // Send notification asynchronously
-        // notifUtil.notifySystem('Blog published', `Blog titled "${blog.title}" was published`, `/api/blogs/${blog._id}`).catch(err =>
-            // logger.error('Failed to send blog publish notification:', err)
-        // );
-
-        // logger.info(`Blog published: ${id} - ${blog.title}`);
+        
         res.status(200).json({
             message: "Blog published successfully",
             publishedOn: blog.publishedOn
@@ -313,3 +307,28 @@ exports.saveViews = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
  }
+
+exports.toggledFetaured = async (req, res) => { 
+    try {
+        const findPost = await Blogs.findById(req.params.id);
+        if (!findPost) {
+            return res.status(404).json({ message: "Blog not found" });
+        }
+
+        const findFeatured = await Blogs.findOne({ isFeatured: true });
+        if (findFeatured && findFeatured._id.toString() !== findPost._id.toString()) {
+            findFeatured.isFeatured = false;
+            await findFeatured.save();
+        }
+        findPost.isFeatured = !findPost.isFeatured;
+        await findPost.save();
+        res.status(200).json({
+            message: `Blog ${findPost.isFeatured ? 'marked as' : 'removed from'} featured successfully`,
+            isFeatured: findPost.isFeatured
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+        console.log(error);
+        
+    }
+}

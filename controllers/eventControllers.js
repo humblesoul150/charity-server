@@ -38,7 +38,7 @@ exports.createEvent = async (req, res) => {
  
         res.status(201).json({
             message: "Event created successfully",
-             
+            newEvent
         });
 
     } catch (error) {

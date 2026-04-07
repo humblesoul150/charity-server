@@ -52,3 +52,21 @@ exports.deleteGalleryItem = async (req, res) => {
     }
 }
 
+exports.updateGalleryItem = async (req, res) => { 
+    try {
+        const { title,category } = req.body
+        const findGalleryItem = await Gallery.findById(req.params.id);
+        if (!findGalleryItem) {
+            return res.status(404).json({ message: "Gallery item not found" });
+        }
+        findGalleryItem.title = title || findGalleryItem.title;
+        findGalleryItem.category = category || findGalleryItem.category;
+        await findGalleryItem.save();
+        res.status(200).json({ message: "Gallery item updated successfully", findGalleryItem });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+    }
+}

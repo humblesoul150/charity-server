@@ -1,7 +1,7 @@
 const Express = require("express");
 const router = Express.Router();
 const { body, param } = require("express-validator");
-const { createCampaign ,getAllCampaigns,deleteCampaign,updateCampaign
+const { createCampaign ,getAllCampaigns,deleteCampaign,updateCampaign,toggleStatus
 } = require("../controllers/campaignControllers");
 
 router.post("/new",
@@ -14,6 +14,10 @@ router.delete("/:id/delete",
 
 router.put("/:id/update",
   updateCampaign
+);
+
+router.put("/:id/status",
+  toggleStatus
 );
 
 

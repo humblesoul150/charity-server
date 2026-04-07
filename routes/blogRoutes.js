@@ -10,7 +10,8 @@ const {
   publishBlog,
   likeToggle,
   saveViews,
-  shareToggle
+  shareToggle,
+  toggledFetaured
 } = require("../controllers/blogControllers");
 
 
@@ -53,6 +54,10 @@ router.post("/:blogId/log-share",
 router.post("/:blogId/log-view",
   
   saveViews
+);
+
+router.put("/:id/toggle-featured",
+  toggledFetaured
 );
 
 module.exports = router;

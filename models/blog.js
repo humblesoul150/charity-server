@@ -17,6 +17,7 @@ const blogsSchema = new mongoose.Schema(
         views: [{ type: String }],
         shares: [{ type: String }],
         publishedOn: { type: Date },
+        isFeatured: { type: Boolean, default: false }
         
         
          

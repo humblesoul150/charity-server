@@ -14,7 +14,7 @@ exports.createCampaign = async (req, res) => {
             goal,
             endDate,
             category,
-            image:  imageUrl  ?  { url: imageUrl, public_id: "" }:image || { url: "", public_id: "" },
+            image: image,
             raised:[]
 
         })
@@ -68,9 +68,7 @@ exports.updateCampaign = async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-console.log('====================================');
-console.log(req.body);
-console.log('====================================');
+ 
 
         const findCampaign = await Campaigns.findById(String(id));
         if (!findCampaign) {
@@ -89,6 +87,29 @@ console.log('====================================');
         res.status(200).json({
             message: "Campaign updated successfully",
              
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+    }
+}
+
+exports.toggleStatus = async (req, res) => { 
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const campaign = await Campaigns.findById(id);
+        if (!campaign) {
+            return res.status(404).json({ message: "Campaign not found" });
+        }
+        campaign.status = data.status;
+        await campaign.save();
+        res.status(200).json({
+            message: "Campaign status updated successfully",
+            status: campaign.status
         });
 
     } catch (error) {

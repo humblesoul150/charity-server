@@ -10,7 +10,7 @@ const campaignSchema = new mongoose.Schema(
         goal: { type: String },
         raised: [{type:Number}],
         endDate : { type: String },
-        status: { type: String, enum: ["ongoing","upcoming", "completed"], default: "upcoming" },
+        status: { type: String, enum: ["upcoming","ongoing", "completed"], default: "upcoming" },
          
     },
   { timestamps: true }
