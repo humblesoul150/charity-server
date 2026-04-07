@@ -50,8 +50,7 @@ exports.createBlog = async (req, res) => {
 exports.getBlogs = async (req, res) => {
     try {
         const blogs = await Blogs.find()
-            .sort({ createdAt: -1 })
-            .populate("comments")
+            .sort({ createdAt: -1 }).populate('comments')
             .select('-__v'); // Exclude version field
 
         if (!blogs || blogs.length === 0) {
@@ -208,6 +207,10 @@ exports.likeToggle = async (req, res) => {
         const { blogId } = req.params;
         const { uuid } = req.body;
 
+        if (!uuid) {
+            return res.status(400).json({ message: "User identifier (uuid) is required" });
+        }
+
         const blog = await Blogs.findById(blogId);
         if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
@@ -225,10 +228,7 @@ exports.likeToggle = async (req, res) => {
         await blog.save();
 
         // logger.info(`${message.toLowerCase().replace(' successfully', '')}: ${blogId} by ${uuid}`);
-        res.status(200).json({
-            message,
-            likesCount: blog.likes.length
-        });
+        res.status(200).json(blog);
 
     } catch (error) {
         // logger.error('Blog like toggle error:', error);
