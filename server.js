@@ -73,6 +73,8 @@ const commentRoutes = require("./routes/commentRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const campaignRoutes = require("./routes/campaignRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
+const childProfileRoutes = require("./routes/childProfileRoutes");
+const sponsorshipRoutes = require("./routes/sponsorshipRoutes");
 
 app.use("/api/blogs", blogRoutes);
 app.use("/api/events", eventRoutes);
@@ -83,6 +85,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/gallery", galleryRoutes);
+app.use("/api/children", childProfileRoutes);
+app.use("/api/sponsors", sponsorshipRoutes);
 
 // Error handling middleware (must be last)
 // app.use(errorHandler);
