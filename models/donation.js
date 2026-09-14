@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const donationsSchema = new mongoose.Schema(
     {
-        type: { type: String, required: true, enum: ["campaign", "event", "general"] },
+        type: { type: String, required: true, enum: ["event", "general"] },
         typeId: { type: String, required: true },
         amount: { type: Number, required: true },
         donorName: { type: String, required: true },
