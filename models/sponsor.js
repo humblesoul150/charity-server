@@ -3,27 +3,51 @@ const mongoose = require("mongoose");
 
 const sponsorsSchema = new mongoose.Schema(
   {
+    profile: {
+      fullName: { type: String, required: true, trim: true },
+      email: { type: String, required: true, trim: true, lowercase: true },
+      country: { type: String, trim: true, default: "" },
+      city: { type: String, trim: true, default: "" },
+      state: { type: String, trim: true, default: "" },
+      region: { type: String, trim: true, default: "" },
+      phone: { type: String, required: true, trim: true },
+      zipCode: { type: String, trim: true, default: "" },
+      bio: { type: String, trim: true, default: "" },
+    },
     sponsor: {
-          email: { type: String, required: true},
-          name: { type: String, required: true },
-          phone: { type: String, required: true },
+          email: { type: String, trim: true },
+          name: { type: String, trim: true },
+          phone: { type: String, trim: true },
     },
     child: { type: mongoose.Schema.Types.ObjectId, ref: 'ChildProfile' },
     location: {
       address: { type: String, trim: true },
+      country: { type: String, trim: true },
       city: { type: String, trim: true },
       state: { type: String, trim: true },
+      region: { type: String, trim: true },
       zipCode: { type: String, trim: true },
+      bio: { type: String, trim: true },
     },
     donation: {
       amount: { type: Number, required: true },
-      period: { type: String, enum: ['Monthly', '3 Months', '6 Months', 'yearly'], required: true },
+      period: { type: String, enum: ['Monthly', '3 Months', '6 Months', 'Yearly'], required: true },
       remindByEmail: { type: Boolean, default: false },
     },
     paymentMethod: {
       type: String, enum: ['zelle', 'stripe', 'check', 'card', 'paypal', 'ach'],
       required: true,
-    }
+    },
+    profileStatus: {
+      type: String,
+      enum: ["Incomplete", "Complete"],
+      default: "Incomplete",
+    },
+    source: {
+      type: String,
+      enum: ["website", "dashboard"],
+      default: "website",
+    },
   },
 
   { timestamps: true },

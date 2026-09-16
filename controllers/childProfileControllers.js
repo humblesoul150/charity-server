@@ -1,16 +1,79 @@
 const Profiles = require('../models/childProfile');
 const deleteImage = require('../utils/deleteCloudImg');
 
+const normalizeEducation = (education = {}) => {
+    if (!education || typeof education !== 'object') {
+        return {
+            currentLevel: '',
+            schoolName: '',
+            currentClass: '',
+            academicYear: '',
+            lastTermResult: '',
+            graduationTarget: '',
+            estimatedGraduationYear: '',
+            educationNotes: '',
+        };
+    }
+
+    const computedLevel = education.currentLevel || education.currentClass || '';
+    const estimatedYear = education.estimatedGraduationYear || getEstimatedGraduationYear(computedLevel);
+
+    return {
+        currentLevel: education.currentLevel || '',
+        schoolName: education.schoolName || '',
+        currentClass: education.currentClass || '',
+        academicYear: education.academicYear || '',
+        lastTermResult: education.lastTermResult || '',
+        graduationTarget: education.graduationTarget || '',
+        estimatedGraduationYear: estimatedYear,
+        educationNotes: education.educationNotes || '',
+    };
+};
+
+function getEstimatedGraduationYear(currentLevel = '') {
+    const normalized = String(currentLevel || '').toLowerCase();
+    let yearsRemaining = 3;
+
+    if (normalized.includes('primary')) yearsRemaining = 5;
+    else if (normalized.includes('secondary') || normalized.includes('senior')) yearsRemaining = 4;
+    else if (normalized.includes('college') || normalized.includes('university') || normalized.includes('tertiary')) yearsRemaining = 4;
+    else if (normalized.includes('vocational')) yearsRemaining = 2;
+
+    return String(new Date().getFullYear() + yearsRemaining);
+}
+
+const normalizeReportCards = (reportCards = []) => {
+    if (!Array.isArray(reportCards)) {
+        return [];
+    }
+
+    return reportCards
+        .filter((card) => card && (card.url || card.public_id || card.name))
+        .map((card) => ({
+            name: card.name || '',
+            url: card.url || '',
+            public_id: card.public_id || '',
+            fileType: card.fileType || '',
+            uploadedAt: card.uploadedAt || new Date(),
+        }));
+};
+
 //create child profile
 exports.createChildProfile = async (req, res) => { 
     try {
         const data = req.body;
-        const stringGardianName = data.guardianNames.join(', '); 
-        const stringHobbies = data.hobbies.join(', ');  
-        const stringInterests = data.interests.join(', ');  
-        const stringNeeds = data.needs.join(', '); 
+        const stringNeeds = Array.isArray(data.needs) ? data.needs.join(', ') : data.needs || '';
+        const education = normalizeEducation(data.education);
+        if (!education.schoolName && data.school) {
+            education.schoolName = data.school;
+        }
 
-        const payLoad = { ...data, guardianNames: stringGardianName, hobbies: stringHobbies, interests: stringInterests, needs: stringNeeds };
+        const payLoad = {
+            ...data,
+            needs: stringNeeds,
+            education,
+            reportCards: normalizeReportCards(data.reportCards),
+        };
          
         const newProfile = new Profiles({ ...payLoad, sponsor: null });
         await newProfile.save();
@@ -27,13 +90,20 @@ exports.updateChildProfile = async (req, res) => {
     try {
 
         const data = req.body;
-         const stringGardianName = data.guardianNames.join(', '); 
-        const stringHobbies = data.hobbies.join(', ');  
-        const stringInterests = data.interests.join(', ');  
-        const stringNeeds = data.needs.join(', '); 
-        const payLoad = { ...data, guardianNames: stringGardianName, hobbies: stringHobbies, interests: stringInterests, needs: stringNeeds };
+        const stringNeeds = Array.isArray(data.needs) ? data.needs.join(', ') : data.needs || '';
+        const education = normalizeEducation(data.education);
+        if (!education.schoolName && data.school) {
+            education.schoolName = data.school;
+        }
+
+        const payLoad = {
+            ...data,
+            needs: stringNeeds,
+            education,
+            reportCards: normalizeReportCards(data.reportCards),
+        };
         
-        const updatedProfile = await Profiles.findByIdAndUpdate(req.params.id, payLoad, { new: true });
+        const updatedProfile = await Profiles.findByIdAndUpdate(req.params.id, payLoad, { new: true, runValidators: true });
         if (!updatedProfile) {
             return res.status(404).json({ message: "Child profile not found" });
         }
@@ -49,7 +119,7 @@ exports.updateChildProfile = async (req, res) => {
 
 exports.getProfiles = async (req, res) => { 
     try {
-        const profiles = await Profiles.find();
+        const profiles = await Profiles.find().populate('sponsor').sort({ createdAt: -1 });
         res.status(200).json(profiles);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
@@ -78,7 +148,7 @@ exports.deleteChildProfile = async (req, res) => {
 
 exports.getChildProfileById = async (req, res) => { 
     try {
-        const profile = await Profiles.findById(req.params.id);
+        const profile = await Profiles.findById(req.params.id).populate('sponsor');
         if (!profile) {
             return res.status(404).json({ message: "Child profile not found" });
         }
