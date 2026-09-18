@@ -10,7 +10,8 @@ const {
   getChildSponsor,
   updateSponsorshipStatus,
   reassignSponsor,
-  updateSponsorProfile
+  updateSponsorProfile,
+  getProfiles
 } = require("../controllers/sponsorControllers");
 // Create a new sponsor
 router.post("/profile/new", createSponsor);
@@ -20,6 +21,9 @@ router.patch("/profile/:id", updateSponsorProfile);
 
 // Get all sponsor records
 router.get("/sponsorship/records", getSponsorRecords);
+
+// Get all sponsor profiles
+router.get("/profiles/all", getProfiles);
 
 // Get sponsor by id including child relationship summary
 router.get("/:id", getSponsorById);

@@ -1,5 +1,5 @@
 const Admin = require("../models/admin");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
  
@@ -42,12 +42,10 @@ exports.loginAdmin = async (req, res) => {
         const { username, password } = req.body;
         const admin = await Admin.findOne({ username });
         if (!admin) {
-            logger.warn(`Failed login attempt for non-existent user: ${username}`);
             return res.status(400).json({ message: "Invalid credentials" });
         }
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            logger.warn(`Failed login attempt for user: ${username}`);
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
@@ -68,7 +66,6 @@ exports.loginAdmin = async (req, res) => {
         res.status(200).json(adminData);
 
     } catch (error) {
-        logger.error('Admin login error:', error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 }
@@ -84,7 +81,6 @@ exports.logoutAdmin = async (req, res) => {
         // logger.info(`Admin logged out: ${admin.username}`);
         res.status(200).json({ message: "Logout successful" });
     } catch (error) {
-        logger.error('Admin logout error:', error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 }

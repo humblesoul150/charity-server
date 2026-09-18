@@ -74,6 +74,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const galleryRoutes = require("./routes/galleryRoutes");
 const childProfileRoutes = require("./routes/childProfileRoutes");
 const sponsorshipRoutes = require("./routes/sponsorshipRoutes");
+const contentRoutes = require("./routes/contentRoutes");
 
 app.use("/api/blogs", blogRoutes);
 app.use("/api/events", eventRoutes);
@@ -85,6 +86,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/children", childProfileRoutes);
 app.use("/api/sponsors", sponsorshipRoutes);
+app.use("/api/content", contentRoutes);
 
 // Error handling middleware (must be last)
 // app.use(errorHandler);

@@ -4,28 +4,32 @@ const deleteImage = require('../utils/deleteCloudImg');
 const normalizeEducation = (education = {}) => {
     if (!education || typeof education !== 'object') {
         return {
+            isStudying: false,
             currentLevel: '',
             schoolName: '',
+            classGrade: '',
             currentClass: '',
             academicYear: '',
+            expectedGraduationYear: '',
             lastTermResult: '',
             graduationTarget: '',
-            estimatedGraduationYear: '',
             educationNotes: '',
         };
     }
 
-    const computedLevel = education.currentLevel || education.currentClass || '';
-    const estimatedYear = education.estimatedGraduationYear || getEstimatedGraduationYear(computedLevel);
+    const classGrade = education.classGrade || education.currentClass || '';
+    const expectedGraduationYear = education.expectedGraduationYear || education.estimatedGraduationYear || '';
 
     return {
+        isStudying: Boolean(education.isStudying),
         currentLevel: education.currentLevel || '',
         schoolName: education.schoolName || '',
-        currentClass: education.currentClass || '',
+        classGrade,
+        currentClass: classGrade,
         academicYear: education.academicYear || '',
+        expectedGraduationYear,
         lastTermResult: education.lastTermResult || '',
         graduationTarget: education.graduationTarget || '',
-        estimatedGraduationYear: estimatedYear,
         educationNotes: education.educationNotes || '',
     };
 };
@@ -51,6 +55,7 @@ const normalizeReportCards = (reportCards = []) => {
         .filter((card) => card && (card.url || card.public_id || card.name))
         .map((card) => ({
             name: card.name || '',
+            description: card.description || '',
             url: card.url || '',
             public_id: card.public_id || '',
             fileType: card.fileType || '',

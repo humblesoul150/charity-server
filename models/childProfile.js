@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const reportCardSchema = new mongoose.Schema(
   {
     name: { type: String, trim: true },
+    description: { type: String, trim: true },
     url: { type: String, trim: true },
     public_id: { type: String, trim: true },
     fileType: { type: String, trim: true },
@@ -13,13 +14,15 @@ const reportCardSchema = new mongoose.Schema(
 
 const educationSchema = new mongoose.Schema(
   {
+    isStudying: { type: Boolean, default: false },
     currentLevel: { type: String, trim: true },
     schoolName: { type: String, trim: true },
+    classGrade: { type: String, trim: true },
     currentClass: { type: String, trim: true },
     academicYear: { type: String, trim: true },
+    expectedGraduationYear: { type: String, trim: true },
     lastTermResult: { type: String, trim: true },
     graduationTarget: { type: String, trim: true },
-    estimatedGraduationYear: { type: String, trim: true },
     educationNotes: { type: String, trim: true },
   },
   { _id: false },
@@ -47,7 +50,7 @@ const childrenProfilesSchema = new mongoose.Schema(
     ageGroup: { type: String, required: true },
     class: { type: String, required: true },
     nationality: { type: String, required: true },
-    familyStatus: { type: String, required: true, enum: ['Single Parent', 'Total Orphan'] },
+    familyStatus: { type: String, required: true, enum: ['Single Parent', 'Total Orphans'] },
     numberOfParents: { type: Number, required: true },
     guardianName: { type: String, trim: true },
     guardianContact: { type: String, trim: true },
@@ -84,13 +87,6 @@ const childrenProfilesSchema = new mongoose.Schema(
 );
 
 childrenProfilesSchema.pre('save', function(next) {
-  if (this.education && !this.education.estimatedGraduationYear) {
-    this.education.estimatedGraduationYear = estimateEducationGraduationYear(
-      this.education.currentLevel,
-      this.education.currentClass,
-    );
-  }
-
   next();
 });
 

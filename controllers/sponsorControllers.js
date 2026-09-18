@@ -159,6 +159,15 @@ exports.getSponsorRecords = async (req, res) => {
     }
 }
 
+exports.getProfiles = async (req, res) => {
+    try{
+const profiles = await Sponsor.find().sort({ createdAt: -1 });
+        res.status(200).json(profiles);
+    }catch(error){
+        console.error(error)
+        res.status(500).json({message:'server error'})
+}}
+
 exports.getSponsorById = async (req, res) => {
     try {
         const sponsor = await Sponsor.findById(req.params.id);
