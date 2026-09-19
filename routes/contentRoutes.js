@@ -1,5 +1,5 @@
 const express = require("express");
-const { requireAuth } = require("../middleware/auth");
+const { requireAuth, requirePermission } = require("../middleware/auth");
 const {
   getContent,
   getContentById,
@@ -11,10 +11,25 @@ const {
 const router = express.Router();
 
 router.get("/", getContent);
-router.get("/all", requireAuth, getContent);
+router.get("/all", requireAuth, requirePermission("content.view"), getContent);
 router.get("/:id", getContentById);
-router.post("/", requireAuth, createContent);
-router.put("/:id", requireAuth, updateContent);
-router.delete("/:id", requireAuth, deleteContent);
+router.post(
+  "/",
+  requireAuth,
+  requirePermission("content.manage"),
+  createContent,
+);
+router.put(
+  "/:id",
+  requireAuth,
+  requirePermission("content.manage"),
+  updateContent,
+);
+router.delete(
+  "/:id",
+  requireAuth,
+  requirePermission("content.manage"),
+  deleteContent,
+);
 
 module.exports = router;

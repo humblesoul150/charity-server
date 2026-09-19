@@ -2,14 +2,16 @@ const mongoose = require("mongoose");
 
 const adminSchema = new mongoose.Schema(
   {
-        username: { type: String, required: true, unique: true },
-        password: { type: String, required: true },
-        role: { type: String, enum: ["admin", "blogger", "moderator"], default: "admin" },
-        loggedIn: { type: Boolean, default: false },
-        lastLogin: { type: Date },
-        loginLogs: [{ type: Date }],
-       
-       
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ["admin", "blogger", "viewer"],
+      default: "admin",
+    },
+    loggedIn: { type: Boolean, default: false },
+    lastLogin: { type: Date },
+    loginLogs: [{ type: Date }],
   },
 
   { timestamps: true },

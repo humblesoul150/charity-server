@@ -5,7 +5,6 @@ const compression = require("compression");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
 const { connectDb } = require("./configs/connectDb.js");
- 
 
 dotenv.config();
 
@@ -14,15 +13,17 @@ const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL;
 
 // Security middleware
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -32,35 +33,37 @@ app.use(limiter);
 app.use(compression());
 
 // parse JSON request bodies
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Configure CORS
-if (CLIENT_URL) {
-  // If you set CLIENT_URL, allow credentials (cookies/auth) from that origin
-  app.use(
-    cors({
-      origin: CLIENT_URL,
-      methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: true,
-    })
-  );
-} else {
-  // No client origin specified: allow any origin but do NOT allow credentials
-  app.use(
-    cors({
-      origin: "*",
-      methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-      credentials: false,
-    })
-  );
-}
+// if (CLIENT_URL) {
+//   // If you set CLIENT_URL, allow credentials (cookies/auth) from that origin
+//   app.use(
+//     cors({
+//       origin: CLIENT_URL,
+//       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+//       allowedHeaders: ["Content-Type", "Authorization"],
+//       credentials: true,
+//     })
+//   );
+// } else {
+//   // No client origin specified: allow any origin but do NOT allow credentials
+//   app.use(
+//     cors({
+//       origin: "*",
+//       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
+//       allowedHeaders: ["Content-Type", "Authorization"],
+//       credentials: false,
+//     })
+//   );
+// }
+
+app.use(cors());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
 // Import routes
@@ -75,6 +78,7 @@ const galleryRoutes = require("./routes/galleryRoutes");
 const childProfileRoutes = require("./routes/childProfileRoutes");
 const sponsorshipRoutes = require("./routes/sponsorshipRoutes");
 const contentRoutes = require("./routes/contentRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 app.use("/api/blogs", blogRoutes);
 app.use("/api/events", eventRoutes);
@@ -87,6 +91,7 @@ app.use("/api/gallery", galleryRoutes);
 app.use("/api/children", childProfileRoutes);
 app.use("/api/sponsors", sponsorshipRoutes);
 app.use("/api/content", contentRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // Error handling middleware (must be last)
 // app.use(errorHandler);
@@ -101,11 +106,9 @@ connectDb(process.env.DB_URL)
   })
   .catch((err) => {
     // logger.error('Failed to start server due to DB connection error:', err);
-    console.error('Failed to start server due to DB connection error:', err.message);
+    console.error(
+      "Failed to start server due to DB connection error:",
+      err.message,
+    );
     process.exit(1);
   });
- 
-
-
- 
- 

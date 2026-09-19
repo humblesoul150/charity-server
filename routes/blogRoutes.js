@@ -11,53 +11,60 @@ const {
   likeToggle,
   saveViews,
   shareToggle,
-  toggledFetaured
+  toggledFetaured,
 } = require("../controllers/blogControllers");
+const { requireAuth, requirePermission } = require("../middleware/auth");
 
-
-router.post("/new",
-  
-  createBlog
-);
+router.post("/new", requireAuth, requirePermission("blogs.manage"), createBlog);
 
 router.get("/all", getBlogs);
 
-router.get("/:id",
-  
-  getBlogById
+router.get(
+  "/:id",
+
+  getBlogById,
 );
 
-router.delete("/delete/:id",
-   
-  deleteBlog
+router.delete(
+  "/delete/:id",
+  requireAuth,
+  requirePermission("blogs.manage"),
+  deleteBlog,
 );
 
-router.put("/:id/update",
-  
-  updateBlog
+router.put(
+  "/:id/update",
+  requireAuth,
+  requirePermission("blogs.manage"),
+  updateBlog,
 );
 
-router.put("/publish/blog/:id",
-  
-  publishBlog
+router.put(
+  "/publish/blog/:id",
+  requireAuth,
+  requirePermission("blogs.manage"),
+  publishBlog,
 );
 
-router.post("/:blogId/toggle-like",
-  likeToggle
+router.post("/:blogId/toggle-like", likeToggle);
+
+router.post(
+  "/:blogId/log-share",
+
+  shareToggle,
 );
 
-router.post("/:blogId/log-share",
-   
-  shareToggle
+router.post(
+  "/:blogId/log-view",
+
+  saveViews,
 );
 
-router.post("/:blogId/log-view",
-  
-  saveViews
-);
-
-router.put("/:id/toggle-featured",
-  toggledFetaured
+router.put(
+  "/:id/toggle-featured",
+  requireAuth,
+  requirePermission("blogs.manage"),
+  toggledFetaured,
 );
 
 module.exports = router;
