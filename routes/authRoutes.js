@@ -1,4 +1,5 @@
 const Express = require("express");
+const { body } = require("express-validator");
 const router = Express.Router();
 const {
   registerAdmin,
@@ -12,6 +13,7 @@ router.post(
   "/admin/register",
   requireAuth,
   requirePermission("users.manage"),
+  body("role").optional().isIn(["developer", "admin", "editor"]).withMessage("Role must be developer, admin, or editor"),
   registerAdmin,
 );
 router.post("/admin/login", loginAdmin);

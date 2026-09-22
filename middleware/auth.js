@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const permissions = {
-  admin: new Set([
+  developer: new Set([
     "dashboard.view",
+    "analytics.view",
     "children.view",
     "children.manage",
     "sponsorships.view",
@@ -17,32 +18,32 @@ const permissions = {
     "gallery.manage",
     "content.view",
     "content.manage",
+    "donations.view",
+    "settings.view",
     "messages.view",
     "messages.manage",
+    "newsletter.view",
     "data.export",
     "users.manage",
   ]),
-  blogger: new Set([
+  admin: new Set([
     "dashboard.view",
+    "children.view",
+    "children.manage",
+    "sponsorships.view",
+    "sponsorships.manage",
+    "staff.view",
+    "staff.manage",
+    "messages.view",
+    "messages.manage",
+  ]),
+  editor: new Set([
     "blogs.view",
     "blogs.manage",
     "events.view",
     "events.manage",
     "gallery.view",
     "gallery.manage",
-    "data.export",
-  ]),
-  viewer: new Set([
-    "dashboard.view",
-    "children.view",
-    "sponsorships.view",
-    "staff.view",
-    "blogs.view",
-    "events.view",
-    "gallery.view",
-    "content.view",
-    "messages.view",
-    "data.export",
   ]),
 };
 
