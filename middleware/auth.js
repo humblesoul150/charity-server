@@ -17,6 +17,8 @@ const permissions = {
     "gallery.manage",
     "content.view",
     "content.manage",
+    "messages.view",
+    "messages.manage",
     "data.export",
     "users.manage",
   ]),
@@ -39,6 +41,7 @@ const permissions = {
     "events.view",
     "gallery.view",
     "content.view",
+    "messages.view",
     "data.export",
   ]),
 };

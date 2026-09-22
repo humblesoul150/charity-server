@@ -1,6 +1,6 @@
 const Messages = require("../models/message");
 const { validationResult } = require("express-validator");
-// const notifUtil = require('../utils/notificationUtil');
+const { sendContactEmails, sendReplyEmail } = require("../utils/mail");
 
 
 
@@ -11,11 +11,12 @@ exports.createMessage = async (req, res) => {
             return res.status(400).json({ message: "Validation errors", errors: errors.array() });
         }
 
-        const { name, email, phone, role, message } = req.body;
+        const { name, email, subject, phone = "", role = "contact", message } = req.body;
 
         const newMessage = new Messages({
             name,
             email,
+            subject,
             phone,
             role,
             message,
@@ -25,15 +26,16 @@ exports.createMessage = async (req, res) => {
 
         await newMessage.save();
 
-        // Send notification asynchronously
-        // notifUtil.notifyNewMessage(newMessage).catch(err =>
-            // logger.error('Failed to send message notification:', err)
-        // );
+        const emailResult = await sendContactEmails(newMessage).catch((error) => {
+            console.error("Message saved, but contact emails failed:", error.message);
+            return { sent: false, error: error.message };
+        });
 
        //  // logger.info(`New message received from: ${name} (${email})`);
         res.status(201).json({
             message: "Message sent successfully",
-            messageId: newMessage._id
+            messageId: newMessage._id,
+            emailSent: emailResult.sent,
         });
 
     } catch (error) {
@@ -48,11 +50,6 @@ exports.getMessages = async (req, res) => {
             .sort({ createdAt: -1 })
             .select('-__v');
 
-        if (!messages || messages.length === 0) {
-            return res.status(404).json({ message: "No messages found" });
-        }
-
-       //  // logger.info(`Retrieved ${messages.length} messages`);
         res.status(200).json(messages);
 
     } catch (error) {
@@ -86,6 +83,15 @@ exports.markAsRead = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 }
+
+exports.getUnreadCount = async (req, res) => {
+    try {
+        const count = await Messages.countDocuments({ isRead: false, isArchived: false });
+        res.status(200).json({ count });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
 exports.archiveToggle = async (req, res) => {
     try {
         const errors = validationResult(req);
@@ -174,10 +180,16 @@ exports.replyToMessage = async (req, res) => {
 
         await message.save();
 
+        const emailResult = await sendReplyEmail(message, reply).catch((error) => {
+            console.error("Reply saved, but reply email failed:", error.message);
+            return { sent: false, error: error.message };
+        });
+
        //  // logger.info(`Reply added to message: ${id}`);
         res.status(200).json({
             message: "Reply added to message successfully",
-            reply: message.reply
+            reply: message.reply,
+            emailSent: emailResult.sent,
         });
 
     } catch (error) {

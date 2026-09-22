@@ -1,21 +1,17 @@
-const { urlencoded } = require("body-parser");
 const mongoose = require("mongoose");
-const { url } = require("../configs/cloudinary");
 
 const messagesSchema = new mongoose.Schema(
-    {
-        name: { type: String, required: true },
-        email: { type: String, required: true },
-        phone: { type: String, required: true },
-        role: { type: String, required: true },
-        message: { type: String, required: true },
-        reply: { reply: String, repliedOn: Date },
-        isRead: { type: Boolean, default: false },
-        isArchived: { type: Boolean, default: false },
-         
-        
-         
-    },
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true, lowercase: true },
+    subject: { type: String, required: true, trim: true },
+    phone: { type: String, default: "", trim: true },
+    role: { type: String, default: "contact", trim: true },
+    message: { type: String, required: true, trim: true },
+    reply: { reply: String, repliedOn: Date },
+    isRead: { type: Boolean, default: false },
+    isArchived: { type: Boolean, default: false },
+  },
   { timestamps: true }
 );
 const Messages = mongoose.model("Message", messagesSchema);
