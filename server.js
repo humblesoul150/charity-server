@@ -10,7 +10,16 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const CLIENT_URL = process.env.CLIENT_URL;
+
+// Reflect the requesting origin so credentialed requests work from any frontend page.
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 
 // Security middleware
 app.use(
@@ -35,31 +44,6 @@ app.use(compression());
 // parse JSON request bodies
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Configure CORS
-// if (CLIENT_URL) {
-//   // If you set CLIENT_URL, allow credentials (cookies/auth) from that origin
-//   app.use(
-//     cors({
-//       origin: CLIENT_URL,
-//       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
-//       allowedHeaders: ["Content-Type", "Authorization"],
-//       credentials: true,
-//     })
-//   );
-// } else {
-//   // No client origin specified: allow any origin but do NOT allow credentials
-//   app.use(
-//     cors({
-//       origin: "*",
-//       methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
-//       allowedHeaders: ["Content-Type", "Authorization"],
-//       credentials: false,
-//     })
-//   );
-// }
-
-app.use(cors());
 
 // Health check endpoint
 app.get("/health", (req, res) => {

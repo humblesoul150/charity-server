@@ -70,6 +70,23 @@ exports.loginAdmin = async (req, res) => {
     }
 }
 
+exports.getCurrentAdmin = async (req, res) => {
+    try {
+        const admin = await Admin.findById(req.admin.id).select("_id username role");
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        return res.status(200).json({
+            id: admin._id,
+            username: admin.username,
+            role: admin.role,
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Server error", error: error.message });
+    }
+}
+
 exports.logoutAdmin = async (req, res) => { 
     try {
         const admin = await Admin.findById(req.admin.id);

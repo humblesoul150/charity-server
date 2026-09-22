@@ -3,6 +3,7 @@ const router = Express.Router();
 const {
   registerAdmin,
   loginAdmin,
+  getCurrentAdmin,
   logoutAdmin,
 } = require("../controllers/adminControllers");
 const { requireAuth, requirePermission } = require("../middleware/auth");
@@ -14,6 +15,7 @@ router.post(
   registerAdmin,
 );
 router.post("/admin/login", loginAdmin);
-router.post("/admin/logout", logoutAdmin);
+router.get("/admin/me", requireAuth, getCurrentAdmin);
+router.post("/admin/logout", requireAuth, logoutAdmin);
 
 module.exports = router;

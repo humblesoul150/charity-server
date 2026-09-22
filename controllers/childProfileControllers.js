@@ -1,17 +1,25 @@
 const Profiles = require("../models/childProfile");
 const deleteImage = require("../utils/deleteCloudImg");
 const mongoose = require("mongoose");
+const { calculateGraduation, normalizeStage } = require("../utils/educationGraduation");
 
-const normalizeEducation = (education = {}) => {
+const normalizeEducation = (education = {}, school = "") => {
   if (!education || typeof education !== "object") {
     return {
       isStudying: false,
+      educationStage: "",
       currentLevel: "",
-      schoolName: "",
+      schoolName: school || "",
       classGrade: "",
       currentClass: "",
       academicYear: "",
+      enrollmentDate: "",
+      courseName: "",
+      courseDurationValue: "",
+      courseDurationUnit: "",
+      expectedGraduationDate: "",
       expectedGraduationYear: "",
+      graduationStage: "",
       lastTermResult: "",
       graduationTarget: "",
       educationNotes: "",
@@ -23,36 +31,40 @@ const normalizeEducation = (education = {}) => {
     education.expectedGraduationYear || education.estimatedGraduationYear || "";
 
   return {
-    isStudying: Boolean(education.isStudying),
+    isStudying: education.isStudying === true || education.isStudying === "true",
+    educationStage: normalizeStage(education.educationStage || education.currentLevel),
     currentLevel: education.currentLevel || "",
-    schoolName: education.schoolName || "",
+    schoolName: education.schoolName || school || "",
     classGrade,
     currentClass: classGrade,
     academicYear: education.academicYear || "",
+    enrollmentDate: education.enrollmentDate || "",
+    courseName: education.courseName || "",
+    courseDurationValue: education.courseDurationValue || "",
+    courseDurationUnit: education.courseDurationUnit || "",
+    expectedGraduationDate: education.expectedGraduationDate || "",
     expectedGraduationYear,
+    graduationStage: education.graduationStage || "",
     lastTermResult: education.lastTermResult || "",
     graduationTarget: education.graduationTarget || "",
     educationNotes: education.educationNotes || "",
   };
 };
 
-function getEstimatedGraduationYear(currentLevel = "") {
-  const normalized = String(currentLevel || "").toLowerCase();
-  let yearsRemaining = 3;
+const prepareEducation = (education, school) => {
+  const normalized = normalizeEducation(education, school);
+  const calculation = calculateGraduation(normalized);
 
-  if (normalized.includes("primary")) yearsRemaining = 5;
-  else if (normalized.includes("secondary") || normalized.includes("senior"))
-    yearsRemaining = 4;
-  else if (
-    normalized.includes("college") ||
-    normalized.includes("university") ||
-    normalized.includes("tertiary")
-  )
-    yearsRemaining = 4;
-  else if (normalized.includes("vocational")) yearsRemaining = 2;
+  if (normalized.isStudying && !calculation) {
+    const error = new Error(
+      "Studying profiles require a valid education stage, enrollment date, and course duration for vocational or university courses.",
+    );
+    error.statusCode = 400;
+    throw error;
+  }
 
-  return String(new Date().getFullYear() + yearsRemaining);
-}
+  return calculation ? { ...normalized, ...calculation } : normalized;
+};
 
 const normalizeReportCards = (reportCards = []) => {
   if (!Array.isArray(reportCards)) {
@@ -79,10 +91,7 @@ exports.createChildProfile = async (req, res) => {
     const stringNeeds = Array.isArray(data.needs)
       ? data.needs.join(", ")
       : data.needs || "";
-    const education = normalizeEducation(data.education);
-    if (!education.schoolName && data.school) {
-      education.schoolName = data.school;
-    }
+    const education = prepareEducation(data.education, data.school);
 
     const payLoad = {
       ...data,
@@ -100,7 +109,7 @@ exports.createChildProfile = async (req, res) => {
         profile: newProfile,
       });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(error.statusCode || 500).json({ message: error.statusCode ? error.message : "Server error", error: error.message });
     console.log("====================================");
     console.log(error);
     console.log("====================================");
@@ -110,13 +119,16 @@ exports.createChildProfile = async (req, res) => {
 exports.updateChildProfile = async (req, res) => {
   try {
     const data = req.body;
+    const existingProfile = await Profiles.findById(req.params.id);
+    if (!existingProfile) {
+      return res.status(404).json({ message: "Child profile not found" });
+    }
     const stringNeeds = Array.isArray(data.needs)
       ? data.needs.join(", ")
-      : data.needs || "";
-    const education = normalizeEducation(data.education);
-    if (!education.schoolName && data.school) {
-      education.schoolName = data.school;
-    }
+      : data.needs ?? existingProfile.needs ?? "";
+    const education = Object.prototype.hasOwnProperty.call(data, "education")
+      ? prepareEducation(data.education, data.school)
+      : existingProfile.education;
 
     const payLoad = {
       ...data,
@@ -142,7 +154,7 @@ exports.updateChildProfile = async (req, res) => {
         profile: updatedProfile,
       });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(error.statusCode || 500).json({ message: error.statusCode ? error.message : "Server error", error: error.message });
     console.log("====================================");
     console.log(error);
     console.log("====================================");
@@ -154,6 +166,7 @@ exports.getProfiles = async (req, res) => {
     const profiles = await Profiles.find()
       .populate("sponsor")
       .sort({ createdAt: -1 });
+
     res.status(200).json(profiles);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
