@@ -6,8 +6,7 @@ const adminSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["admin", "blogger", "viewer"], 
-      
+      enum: ["developer", "admin", "editor"],
       default: "admin",
     },
     loggedIn: { type: Boolean, default: false },
